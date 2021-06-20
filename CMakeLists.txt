@@ -18,7 +18,7 @@ find_package(Ceres REQUIRED)
 include_directories(./include
                     /usr/include
                     ${Boost_INCLUDE_DIRS}
-                    ${EIGEN_INCLUDE_DIR}
+                    ${EIGEN3_INCLUDE_DIR}
                     ${CERES_INCLUDE_DIRS})
 
 #Vis3D
@@ -60,6 +60,9 @@ add_executable(test_imu_calib apps/test_imu_calib.cpp)
 target_link_libraries( test_imu_calib ${IMU_TK_LIBS})
 set_target_properties( test_imu_calib PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
+add_executable(calib_and_correct apps/calib_and_correct.cpp)
+target_link_libraries(calib_and_correct ${IMU_TK_LIBS})
+set_target_properties(calib_and_correct PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(test_integration apps/test_integration.cpp)
 target_link_libraries( test_integration ${IMU_TK_LIBS})
