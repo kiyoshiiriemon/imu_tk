@@ -40,19 +40,17 @@ void load_imu_file(const char *filename, vector<TriadData> &acc_data, vector<Tri
 
 int main(int argc, char** argv)
 {
-  if( argc < 3 )
-    return -1;
+    if( argc < 3 )
+        return -1;
 
-  vector< ImuData > all_data;
-  vector< TriadData > acc_data, gyro_data;
-  vector< TriadData > acc_data_target, gyro_data_target;
-  
-  cout<<"Importing IMU data from the Matlab matrix file : "<< argv[1]<<endl;
-  importAsciiData( argv[1], acc_data, imu_tk::TIMESTAMP_UNIT_SEC );
-  cout<<"Importing IMU data from the Matlab matrix file : "<< argv[2]<<endl;
-  importAsciiData( argv[2], gyro_data, imu_tk::TIMESTAMP_UNIT_SEC  );
-  cout<<"Importing IMU data from .imu file : "<< argv[3]<<endl;
-  load_imu_file(argv[3], acc_data_target, gyro_data_target, all_data);
+    vector< ImuData > all_data_calib, all_data;
+    vector< TriadData > acc_data, gyro_data;
+    vector< TriadData > acc_data_target, gyro_data_target;
+
+    cout<<"Importing calibration data from .imu file : "<< argv[1]<<endl;
+    load_imu_file(argv[1], acc_data, gyro_data, all_data_calib);
+    cout<<"Importing IMU data for correction from .imu file : "<< argv[2]<<endl;
+    load_imu_file(argv[2], acc_data_target, gyro_data_target, all_data);
   
   
   CalibratedTriad init_acc_calib, init_gyro_calib;
