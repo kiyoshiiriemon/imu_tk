@@ -68,7 +68,12 @@ int main(int argc, char** argv)
   mp_calib.enableVerboseOutput(true);
   mp_calib.enableAccUseMeans(false);
   //mp_calib.setGyroDataPeriod(0.01);
-  mp_calib.calibrateAccGyro(acc_data, gyro_data );
+  double t0 = acc_data.front().timestamp();
+  double t1 = acc_data.back().timestamp();
+  double dt = (t1-t0)/(acc_data.size()-1);
+  int win_size = round(1.0 / (dt) + 1);
+  std::cout << "t0, t1, dt: " << t0 << " " << t1 << " " << dt << "\t win_size:" << win_size << std::endl;
+  mp_calib.calibrateAccGyro(acc_data, gyro_data, win_size);
   mp_calib.getAccCalib().save("test_imu_acc.calib");
   mp_calib.getGyroCalib().save("test_imu_gyro.calib");
   

@@ -149,7 +149,7 @@ template <typename _T>
   verbose_output_(false){}
 
 template <typename _T>
-  bool MultiPosCalibration_<_T>::calibrateAcc ( const std::vector< TriadData_<_T> >& acc_samples )
+  bool MultiPosCalibration_<_T>::calibrateAcc ( const std::vector< TriadData_<_T> >& acc_samples, int win_size )
 {
   cout<<"Accelerometers calibration: calibrating..."<<endl;
   
@@ -186,7 +186,7 @@ template <typename _T>
     acc_calib_params[8] = init_acc_calib_.biasZ();
     
     std::vector< DataInterval > extracted_intervals;
-    staticIntervalsDetector ( acc_samples, th_mult*norm_th, static_intervals );
+    staticIntervalsDetector ( acc_samples, th_mult*norm_th, static_intervals, win_size );
     extractIntervalsSamples ( acc_samples, static_intervals, 
                               static_samples, extracted_intervals,
                               interval_n_samples_, acc_use_means_ );
@@ -275,9 +275,10 @@ template <typename _T>
 
 template <typename _T> 
   bool MultiPosCalibration_<_T>::calibrateAccGyro ( const vector< TriadData_<_T> >& acc_samples, 
-                                                   const vector< TriadData_<_T> >& gyro_samples )
+                                                   const vector< TriadData_<_T> >& gyro_samples,
+                                                   int win_size)
 {
-  if( !calibrateAcc( acc_samples ) )
+  if( !calibrateAcc( acc_samples, win_size ) )
     return false;
   
   cout<<"Gyroscopes calibration: calibrating..."<<endl;
