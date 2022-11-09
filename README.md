@@ -1,3 +1,35 @@
+# このレポジトリについて
+このレポジトリは[IMU-TK](https://bitbucket.org/alberto_pretto/imu_tk/)をフォークして改変しているものです。
+主な修正は下記の通りです
+
+- クラッシュバグの修正
+- Qt5への移行
+- キャリブレーションと補正を同時に行う例を追加
+
+私が使っている独自形式のデータファイル(.imu)を用いてキャリブレーションを行い，その結果で別のデータファイルを補正するには
+```
+./calib_and_correct_imufile -c <calibration_data_file.imu> -i <datafile_to_correct.imu> -o <output_corrected_file.imu> -s <initial_still_time(sec)>
+```
+のようにしてください。
+静止検出がうまく行っていないようでしたら，-w <ウインドウ幅> のオプションを追加して静止検出に使うウインドウの幅を調整してください。
+デフォルトのウインドウ幅は100Hzデータでは101，1000Hzデータでは1001になります。
+
+.imuデータファイルの形式は各行に
+```
+sec nanosec acc_x acc_y acc_z gyro_x gyro_y gyro_z pos_x pos_y pos_z vel_x vel_y vel_z quat_w quat_x quat_y quat_z
+```
+とデータがタブ区切りで入っています。
+pos, vel, quatはこのキャリブレーションツールでは使わないので適当な値を入れておけばOKです。
+
+## キャリブレーションデータの取り方
+- IMUを机などの上で静止させ，データ記録を開始
+- そのまま静止させておく(30秒~1分くらい)
+- IMUの向きを適当に変えて静止させる(3~5秒間くらい)
+- いろいろな向きに変えて数秒間静止，を20~30回程度繰り返す(偏らないように)
+
+----
+以下はオリジナルのREADMEです。
+
 # IMU-TK: Inertial Measurement Unit ToolKit #
 
 The C++ IMU-TK Library (Inertial Measurement Unit ToolKit) provides simple functions and data structures to calibrate MEMS-based inertial navigation units, and to process and display IMU data. 
