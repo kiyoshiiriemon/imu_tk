@@ -22,9 +22,14 @@ struct ImuData
     double q_w, q_x, q_y, q_z;
 };
 
-void load_imu_file(const char *filename, vector<TriadData> &acc_data, vector<TriadData> &gyro_data, vector<ImuData> &all_data)
+bool load_imu_file(const char *filename, vector<TriadData> &acc_data, vector<TriadData> &gyro_data, vector<ImuData> &all_data)
 {
-    std::ifstream ifs(filename);
+    std::ifstream ifs;
+    ifs.open(filename);
+    if (!ifs) {
+        cout << "Could not open " << filename << std::endl;
+        return false;
+    }
     ImuData d;
     while(ifs) {
         ifs >> d.tv_sec >> d.tv_nsec >> d.acc_x >> d.acc_y >> d.acc_z
@@ -37,6 +42,7 @@ void load_imu_file(const char *filename, vector<TriadData> &acc_data, vector<Tri
         acc_data.push_back(TriadData(t, d.acc_x, d.acc_y, d.acc_z));
         gyro_data.push_back(TriadData(t, d.gyro_x, d.gyro_y, d.gyro_z));
     }
+    return true;
 }
 
 int main(int argc, char** argv)
@@ -45,7 +51,7 @@ int main(int argc, char** argv)
     double init_still_sec;
     double gravity_mag = 9.797;
     std::string calib_file, correct_file;
-    int win_size;
+    int win_size = 0;
     options_description desc;
     desc.add_options()("calib-file,c", value<std::string>(), "Calibration data file *REQUIRED*");
     desc.add_options()("init-still-duration,s", value<double>()->default_value(30), "Initial still duration (sec)");
@@ -71,6 +77,7 @@ int main(int argc, char** argv)
         gravity_mag = vm["gravity-mag"].as<double>();
         calib_file = vm["calib-file"].as<std::string>();
         correct_file = vm["in-correct-file"].as<std::string>();
+        win_size = vm["win-size"].as<int>();
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
         exit(-1);
@@ -81,10 +88,14 @@ int main(int argc, char** argv)
     vector< TriadData > acc_data_target, gyro_data_target;
 
     cout<<"Importing calibration data from .imu file : "<< calib_file <<endl;
-    load_imu_file(calib_file.c_str(), acc_data, gyro_data, all_data_calib);
+    if (!load_imu_file(calib_file.c_str(), acc_data, gyro_data, all_data_calib)) {
+        return -1;
+    }
     if (correct_file.size()) {
         cout << "Importing IMU data for correction from .imu file : " << correct_file << endl;
-        load_imu_file(correct_file.c_str(), acc_data_target, gyro_data_target, all_data);
+        if (!load_imu_file(correct_file.c_str(), acc_data_target, gyro_data_target, all_data)) {
+            return -1;
+        }
     }
   
   
@@ -110,6 +121,7 @@ int main(int argc, char** argv)
       // determine window size from data freq
       win_size = round(1.0 / (dt) + 1);
   }
+  std::cout << "data size: " << acc_data.size() << std::endl;
   std::cout << "t0, t1, dt: " << t0 << " " << t1 << " " << dt << "\t win_size:" << win_size << std::endl;
   mp_calib.calibrateAccGyro(acc_data, gyro_data, win_size);
   mp_calib.getAccCalib().save("test_imu_acc.calib");
