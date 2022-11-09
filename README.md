@@ -1,5 +1,14 @@
-このレポジトリはIMU-TK
+# このレポジトリについて
+このレポジトリは[IMU-TK](https://bitbucket.org/alberto_pretto/imu_tk/)をフォークして改変しているものです。
+主な修正は下記の通りです
 
+- クラッシュバグの修正
+- Qt5への移行
+- キャリブレーションと補正を同時に行う例を追加
+
+以下はオリジナルのREADMEです。
+
+----
 # IMU-TK: Inertial Measurement Unit ToolKit #
 
 The C++ IMU-TK Library (Inertial Measurement Unit ToolKit) provides simple functions and data structures to calibrate MEMS-based inertial navigation units, and to process and display IMU data. 
