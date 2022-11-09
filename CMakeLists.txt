@@ -1,7 +1,7 @@
 project(imu_tk)
 
 cmake_minimum_required (VERSION 2.8) 
-cmake_policy(SET CMP0015 NEW)
+#cmake_policy(SET CMP0015 NEW)
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
   set(CMAKE_BUILD_TYPE "Release")
@@ -11,7 +11,7 @@ if(NOT DEFINED BUILD_IMU_TK_EXAMPLES)
   set(BUILD_IMU_TK_EXAMPLES "ON")
 endif(NOT DEFINED BUILD_IMU_TK_EXAMPLES)
 
-find_package(Boost REQUIRED)  
+find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Ceres REQUIRED)
 
@@ -63,7 +63,7 @@ target_link_libraries(calib_and_correct ${IMU_TK_LIBS})
 set_target_properties(calib_and_correct PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(calib_and_correct_imufile apps/calib_and_correct_imufile.cpp)
-target_link_libraries(calib_and_correct_imufile ${IMU_TK_LIBS})
+target_link_libraries(calib_and_correct_imufile ${IMU_TK_LIBS} Boost::program_options)
 set_target_properties(calib_and_correct_imufile PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 add_executable(test_integration apps/test_integration.cpp)

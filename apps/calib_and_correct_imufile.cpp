@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/program_options.hpp>
 
 #include "imu_tk/io_utils.h"
 #include "imu_tk/calibration.h"
@@ -40,17 +41,51 @@ void load_imu_file(const char *filename, vector<TriadData> &acc_data, vector<Tri
 
 int main(int argc, char** argv)
 {
-    if( argc < 3 )
-        return -1;
+    using namespace boost::program_options;
+    double init_still_sec;
+    double gravity_mag = 9.797;
+    std::string calib_file, correct_file;
+    int win_size;
+    options_description desc;
+    desc.add_options()("calib-file,c", value<std::string>(), "Calibration data file *REQUIRED*");
+    desc.add_options()("init-still-duration,s", value<double>()->default_value(30), "Initial still duration (sec)");
+    desc.add_options()("in-correct-file,i", value<std::string>()->default_value(""), "File to correct (optional)");
+    desc.add_options()("out-corrected-file,o", value<std::string>()->default_value("calibrated_out.imu"), "Corrected file output (optional)");
+    desc.add_options()("gravity-mag,g", value<double>()->default_value(9.797), "Gravity magnitude m/s^2");
+    desc.add_options()("win-size,w", value<int>()->default_value(0), "Window size");
+    desc.add_options()("help,h", "show help");
+
+    variables_map vm;
+    try {
+        store(parse_command_line(argc, argv, desc), vm);
+        notify(vm);
+        if (vm.count("help")) {
+            std::cout << desc << std::endl;
+            exit(0);
+        }
+        if (vm.count("calib-file")==0) {
+            std::cout << "--calib-file (or -c) is required. --help for more information." << std::endl;
+            exit(0);
+        }
+        init_still_sec = vm["init-still-duration"].as<double>();
+        gravity_mag = vm["gravity-mag"].as<double>();
+        calib_file = vm["calib-file"].as<std::string>();
+        correct_file = vm["in-correct-file"].as<std::string>();
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        exit(-1);
+    }
 
     vector< ImuData > all_data_calib, all_data;
     vector< TriadData > acc_data, gyro_data;
     vector< TriadData > acc_data_target, gyro_data_target;
 
-    cout<<"Importing calibration data from .imu file : "<< argv[1]<<endl;
-    load_imu_file(argv[1], acc_data, gyro_data, all_data_calib);
-    cout<<"Importing IMU data for correction from .imu file : "<< argv[2]<<endl;
-    load_imu_file(argv[2], acc_data_target, gyro_data_target, all_data);
+    cout<<"Importing calibration data from .imu file : "<< calib_file <<endl;
+    load_imu_file(calib_file.c_str(), acc_data, gyro_data, all_data_calib);
+    if (correct_file.size()) {
+        cout << "Importing IMU data for correction from .imu file : " << correct_file << endl;
+        load_imu_file(correct_file.c_str(), acc_data_target, gyro_data_target, all_data);
+    }
   
   
   CalibratedTriad init_acc_calib, init_gyro_calib;
@@ -61,17 +96,20 @@ int main(int argc, char** argv)
   
   MultiPosCalibration mp_calib;
     
-  mp_calib.setInitStaticIntervalDuration(30.0);
+  mp_calib.setInitStaticIntervalDuration(init_still_sec);
   mp_calib.setInitAccCalibration( init_acc_calib );
   mp_calib.setInitGyroCalibration( init_gyro_calib );  
-  mp_calib.setGravityMagnitude(9.7979);
+  mp_calib.setGravityMagnitude(gravity_mag);
   mp_calib.enableVerboseOutput(true);
   mp_calib.enableAccUseMeans(false);
   //mp_calib.setGyroDataPeriod(0.01);
   double t0 = acc_data.front().timestamp();
   double t1 = acc_data.back().timestamp();
   double dt = (t1-t0)/(acc_data.size()-1);
-  int win_size = round(1.0 / (dt) + 1);
+  if (win_size == 0) {
+      // determine window size from data freq
+      win_size = round(1.0 / (dt) + 1);
+  }
   std::cout << "t0, t1, dt: " << t0 << " " << t1 << " " << dt << "\t win_size:" << win_size << std::endl;
   mp_calib.calibrateAccGyro(acc_data, gyro_data, win_size);
   mp_calib.getAccCalib().save("test_imu_acc.calib");
