@@ -1,3 +1,5 @@
+このレポジトリはIMU-TK
+
 # IMU-TK: Inertial Measurement Unit ToolKit #
 
 The C++ IMU-TK Library (Inertial Measurement Unit ToolKit) provides simple functions and data structures to calibrate MEMS-based inertial navigation units, and to process and display IMU data. 
