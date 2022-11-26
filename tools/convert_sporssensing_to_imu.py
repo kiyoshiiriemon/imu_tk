@@ -87,11 +87,11 @@ def main(fname, data_hdrs, suffix):
 
         if line.startswith('計測開始時刻'):
             items = line.split(',')
-            datetime0 = datetime.strptime(items[1] + ' ' + items[2], '%y/%m/%d %H:%M')
+            datetime0 = datetime.strptime(items[1] + ' ' + items[2], '%Y/%m/%d %H:%M')
             #print(datetime0)
             starttime = datetime0.timestamp()
             print(f'{datetime0} -> {starttime}')
-        if line.startswith('シーケンス数'):
+        if line.startswith('サンプリング周波数'):
             items = line.split(',')
             datafreq = float(items[1])
             print(f'data freq {datafreq}')
