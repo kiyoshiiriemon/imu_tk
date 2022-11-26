@@ -20,6 +20,7 @@ sec nanosec acc_x acc_y acc_z gyro_x gyro_y gyro_z pos_x pos_y pos_z vel_x vel_y
 ```
 とデータがタブ区切りで入っています。
 pos, vel, quatはこのキャリブレーションツールでは使わないので適当な値を入れておけばOKです。
+toolsディレクトリにスポーツセンシング社のワイヤレスモーションセンサのcsvファイルから.imuファイルに変換するツールが入っています。
 
 ## キャリブレーションデータの取り方
 - IMUを机などの上で静止させ，データ記録を開始
