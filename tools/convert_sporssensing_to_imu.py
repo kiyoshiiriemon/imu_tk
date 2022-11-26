@@ -87,7 +87,15 @@ def main(fname, data_hdrs, suffix):
 
         if line.startswith('計測開始時刻'):
             items = line.split(',')
-            datetime0 = datetime.strptime(items[1] + ' ' + items[2], '%Y/%m/%d %H:%M')
+            datetime_formats = ['%Y/%m/%d %H:%M', '%y/%m/%d %H:%M']
+            for format in datetime_formats:
+                try:
+                    datetime0 = datetime.strptime(items[1] + ' ' + items[2], format)
+                    if datetime0:
+                        break
+                except ValueError:
+                    print('testing datetime format')
+
             #print(datetime0)
             starttime = datetime0.timestamp()
             print(f'{datetime0} -> {starttime}')
